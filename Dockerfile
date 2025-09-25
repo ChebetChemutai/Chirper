@@ -8,9 +8,9 @@ WORKDIR /var/www/html
 # Install Node.js and npm for building frontend assets
 RUN apk add --no-cache nodejs npm
 
+# Copy only the files that exist for your project
 COPY database/ database/
 COPY composer.json composer.lock package.json package-lock.json vite.config.js ./
-COPY tailwind.config.js postcss.config.js ./
 COPY resources/ resources/
 
 # Install PHP dependencies
@@ -49,7 +49,7 @@ COPY .docker/php/www.conf /etc/php82/php-fpm.d/www.conf
 COPY .docker/entrypoint.sh .docker/entrypoint.sh
 
 # Set correct permissions
-RUN chown -R nginx:nginx /var/www/html/storage /var/###/html/bootstrap/cache
+RUN chown -R nginx:nginx /var/www/html/storage /var/www/html/bootstrap/cache
 RUN chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
 RUN chmod +x .docker/entrypoint.sh
 
