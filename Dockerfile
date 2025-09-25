@@ -1,8 +1,10 @@
-# Dockerfile (Updated Version)
+# Dockerfile (Final Corrected Version)
 
 # Stage 1: The "builder" stage
+# Standardize the working directory to match the final stage
 FROM composer:2 as builder
-WORKDIR /app
+WORKDIR /var/www/html
+
 COPY database/ database/
 COPY composer.json composer.lock ./
 RUN composer install --no-interaction --no-plugins --no-scripts --prefer-dist --no-dev --optimize-autoloader
@@ -11,6 +13,9 @@ RUN composer dump-autoload --optimize
 RUN php artisan config:cache
 RUN php artisan route:cache
 RUN php artisan view:cache
+
+# Run database migrations automatically during the build
+RUN php artisan migrate --force --no-interaction
 
 
 # Stage 2: The "final" production stage
@@ -21,7 +26,7 @@ WORKDIR /var/www/html
 RUN apk add --no-cache php82 php82-fpm php82-pgsql php82-pdo php82-pdo_pgsql php82-tokenizer php82-xml php82-ctype php82-session php82-dom php82-fileinfo php82-openssl
 
 # Copy app files from the "builder" stage
-COPY --from=builder /app .
+COPY --from=builder /var/www/html .
 
 # Copy Nginx and PHP-FPM configurations
 COPY .docker/nginx/default.conf /etc/nginx/conf.d/default.conf
